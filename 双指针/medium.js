@@ -111,10 +111,6 @@ var detectCycle = function(head) {
   return false
 };
 // 剑指 Offer II 007. 数组中和为 0 的三个数
-/**
- * @param {number[]} nums
- * @return {number[][]}
- */
  var threeSum = function(nums) {
   if(nums.length<3){
     return [];
@@ -770,7 +766,104 @@ var checkPalindromeFormation = function(a, b) {
   }
   return ret;
 };
+// 盛最多水的容器
+var maxArea = function(height) {
+  let i = 0; let j = height.length-1;
+  let ret = 0;
+  while(i<j){
+    ret = Math.max(ret, Math.min(height[i], height[j])*(j-i));
+    if(height[i]>height[j]){
+      j--;
+    }else if(height[i]<height[j]){
+      i++
+    }else{
+      i++;
+      j--;
+    }
+  }
+  return ret;
+};
+// 16. 最接近的三数之和
+var threeSumClosest = function(nums, target) {
+  nums.sort(sort);
+  let i = 0;
+  let ret = Infinity;
+  while(i<nums.length-2){
+    let j = i+1;
+    let k = nums.length-1;
+    while(j<k){
+      let sum = nums[i] + nums[j]+nums[k];
+      if(sum === target){
+        return target;
+      }else if(sum<target){
+       ret = Math.abs(sum-target) > Math.abs(ret-target) ? ret : sum; 
+       j++;
+      }else{
+        ret = Math.abs(sum-target) > Math.abs(ret-target) ? ret : sum; 
+        k--;
+      }
+    }
+    i++
+  }
+  return ret;
+};
+//  四数之和TODO:
+var fourSum = function(nums, target) {
+  if(nums.length<4){
+    return [];
+  }
+  let arr = [];
+  let map = {};
+  for(let num of nums){
+    if(arr.indexOf(num===-1)){
+      arr.push(num);
+    }
+    map[num] = (map[num]||0)+1;
+  }
+  arr.sort(sort);
 
 
+};
+// 删除链表的倒数第 N 个结点
+var removeNthFromEnd = function(head, n) {
+  const arr = [];
+  let cur = head;
+  while(cur){
+    arr.push(cur);
+    cur = cur.next;
+  }
+  const len = arr.length;
+  if(n>len){
+    return head;
+  }
+  if(n === len){
+    return arr[1] || null;
+  }
+  if(n===1){
+    arr[len-2].next = null;
+    return head;
+  }
+  arr[len-n-1].next = arr[len-n+1]||null
+  return head;
+};
+// 比较版本号
+var compareVersion = function(version1, version2) {
+  const arr1 = version1.split('.').map(num=>num*1);
+  const arr2 = version2.split('.').map(num=>num*1);
+  let i = 0; let j = 0;
+  while(i<arr1.length || j<arr2.length){
+    let a = arr1[i] || 0;
+    let b = arr2[j] || 0;
+    if(a>b){
+      return 1;
+    }else if(a<b){
+      return -1
+    }else{
+      i++;
+      j++;
+    }
+  }
+  return 0;
+};
 console.info(checkPalindromeFormation("abdef","fecab"))
 
