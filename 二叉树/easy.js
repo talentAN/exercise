@@ -5,6 +5,9 @@ function TreeNode(val, left, right) {
   this.left = left === undefined ? null : left;
   this.right = right === undefined ? null : right;
 }
+function sort(a, b) {
+  return a > b ? 1 : -1;
+}
 // 二叉树的中序遍历
 var inorderTraversal = function (root) {
   if (!root) {
@@ -479,3 +482,269 @@ var searchBST = function (root, val) {
     return searchBST(root.right, val);
   }
 };
+//783. 二叉搜索树节点最小距离
+var minDiffInBST = function (root) {
+  if (!root) {
+    return Infinity;
+  }
+  let [leftVal, rightVal] = [Infinity, Infinity];
+  let left = root.left;
+  while (left) {
+    leftVal = left.val;
+    left = left.right;
+  }
+  let right = root.right;
+  while (right) {
+    rightVal = right.val;
+    right = right.left;
+  }
+  const min = Math.min(Math.abs(root.val - leftVal), Math.abs(root.val - rightVal));
+  return Math.min(min, minDiffInBST(root.left), minDiffInBST(root.right));
+};
+// 叶子相似的树
+function _runLeaf(root) {
+  if (!root) {
+    return [];
+  }
+  if (!root.left && !root.right) {
+    return [root.val];
+  }
+  let ret = [];
+  if (root.left) {
+    ret = [..._runLeaf(root.left)];
+  }
+  if (root.right) {
+    ret = [...ret, ..._runLeaf(root.right)];
+  }
+  return ret;
+}
+var leafSimilar = function (root1, root2) {
+  return _runLeaf(root1).join(',') === _runLeaf(root2).join(',');
+};
+// 叶子相似的树 迭代器版
+function* _runLeaf(root) {
+  const stack = [root];
+  while (stack.length) {
+    const node = stack.pop();
+    if (!node.left && !node.right) {
+      yield node.val;
+    }
+    if (node.right) {
+      stack.push(node.right);
+    }
+    if (node.left) {
+      stack.push(node.left);
+    }
+  }
+}
+var leafSimilar = function (root1, root2) {
+  const iterator1 = _runLeaf(root1);
+  const iterator2 = _runLeaf(root2);
+  let isValid = true;
+  let val1 = null;
+  let val2 = null;
+  do {
+    val1 = iterator1.next();
+    val2 = iterator2.next();
+    isValid = val1 === val2;
+    if (!isValid) {
+      return false;
+    }
+  } while (isValid && val1 !== undefined);
+  return true;
+};
+// 897. 递增顺序搜索树
+var increasingBST = function (root) {
+  let ret = null;
+  let last = null;
+  while (root) {
+    if (root.left) {
+      let morris = root.left;
+      while (morris.right) {
+        morris = morris.right;
+      }
+      morris.right = root;
+      let pre = root;
+      root = root.left;
+      pre.left = null;
+    } else {
+      if (last) {
+        last.right = root;
+        last = root;
+      } else {
+        ret = root;
+        last = root;
+      }
+      root = root.right;
+    }
+  }
+  return ret;
+};
+// 938. 二叉搜索树的范围和
+var rangeSumBST = function (root, low, high) {
+  if (!root) {
+    return 0;
+  }
+  if (root.val > high) {
+    return rangeSumBST(root.left, low, high);
+  }
+  if (root.val < low) {
+    return rangeSumBST(root.right, low, high);
+  }
+  return root.val + rangeSumBST(root.left, low, high) + rangeSumBST(root.right, low, high);
+};
+// 965. 单值二叉树
+var isUnivalTree = function (root) {
+  if (!root) {
+    return true;
+  }
+  if (!root.left && !root.right) {
+    return true;
+  }
+  const val = root.val;
+  let stark = [root];
+  while (stark.length) {
+    const cdds = [];
+    for (let node of stark) {
+      if (node.val !== val) {
+        return false;
+      }
+      if (node.left) {
+        cdds.push(node.left);
+      }
+      if (node.right) {
+        cdds.push(node.right);
+      }
+    }
+    stark = cdds;
+  }
+  return true;
+};
+// 993. 二叉树的堂兄弟节点
+var isCousins = function (root, x, y) {
+  if (!root) {
+    return false;
+  }
+  if (root.val === x || root.val === y) {
+    return false;
+  }
+  let arr = [root.left || {}, root.right || {}];
+  while (arr.length) {
+    let hasX = false;
+    let hasY = false;
+    let nodeX, nodeY;
+    let _arr = [];
+    for (let node of arr) {
+      if (node.val === x) {
+        hasX = true;
+        nodeX = node.father;
+      }
+      if (node.val === y) {
+        hasY = true;
+        nodeY = node.father;
+      }
+      if (node.left) {
+        node.left.father = node.val;
+        _arr.push(node.left);
+      }
+      if (node.right) {
+        node.right.father = node.val;
+        _arr.push(node.right);
+      }
+    }
+    if (hasX && hasY) {
+      return nodeX !== nodeY;
+    }
+    if (hasX || hasY) {
+      return false;
+    }
+    arr = _arr;
+  }
+  return false;
+};
+//从根到叶的二进制数之和
+function _str2Num(str) {
+  let ret = 0;
+  for (let i = str.length - 1; i >= 0; i--) {
+    const num = str.length - i;
+    if (str[i] === '1') {
+      ret += Math.pow(2, num - 1);
+    }
+  }
+  return ret;
+}
+var sumRootToLeaf = function (root) {
+  const ret = [];
+  let arr = [root];
+  while (arr.length) {
+    const cdds = [];
+    for (let node of arr) {
+      if (!node.left && !node.right) {
+        ret.push((node.str || '') + node.val);
+      } else {
+        if (node.left) {
+          node.left.str = (node.str || '') + node.val;
+          cdds.push(node.left);
+        }
+        if (node.right) {
+          node.right.str = (node.str || '') + node.val;
+          cdds.push(node.right);
+        }
+      }
+    }
+    arr = cdds;
+  }
+  return ret.reduce((pre, cur) => {
+    return pre + _str2Num(cur);
+  }, 0);
+};
+
+// 检查平衡性
+var isBalanced = function (root) {
+  if (!root) {
+    return true;
+  }
+  if (!root.left && !root.right) {
+    return true;
+  }
+  if (Math.abs(maxDepth(root.left) - maxDepth(root.right)) > 1) {
+    return false;
+  }
+  return isBalanced(root.left) && isBalanced(root.right);
+};
+// 剑指 Offer 27. 二叉树的镜像
+var mirrorTree = function (root) {
+  if (!root) {
+    return null;
+  }
+  if (!root.left && !root.right) {
+    return root;
+  }
+  [root.left, root.right] = [root.right, root.left];
+  mirrorTree(root.left);
+  mirrorTree(root.right);
+  return root;
+};
+// 剑指 Offer 32 - II. 从上到下打印二叉树 II
+var levelOrder = function (root) {
+  const ret = [];
+  let arr = [root];
+  while (arr.length) {
+    const cdds = [];
+    const _ret = [];
+    for (let node of arr) {
+      _ret.push(node.val);
+      if (node.left) {
+        cdds.push(node.left);
+      }
+      if (node.right) {
+        cdds.push(node.right);
+      }
+    }
+    arr = cdds;
+    ret.push(_ret);
+  }
+  return ret;
+};
+//剑指 Offer 54. 二叉搜索树的第k大节点
+var kthLargest = function (root, k) {};
