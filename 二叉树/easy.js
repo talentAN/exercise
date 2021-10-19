@@ -747,4 +747,118 @@ var levelOrder = function (root) {
   return ret;
 };
 //剑指 Offer 54. 二叉搜索树的第k大节点
-var kthLargest = function (root, k) {};
+var kthLargest = function (root, k) {
+  if (!root) {
+    return null;
+  }
+  const arr = [];
+  while (root) {
+    if (root.left) {
+      let rightest = root.left;
+      while (rightest.right) {
+        rightest = rightest.right;
+      }
+      rightest.right = root;
+      const temp = root;
+      root = root.left;
+      temp.left = null;
+    } else {
+      arr.push(root.val);
+      root = root.right;
+    }
+  }
+  return arr[arr.length - k];
+};
+//剑指 Offer 68 - II. 二叉树的最近公共祖先
+var lowestCommonAncestor = function (root, p, q) {
+  if (root.val === p.val || root.val === q.val) {
+    return root;
+  }
+  function _findNode(root, node) {
+    if (!root) {
+      return false;
+    }
+    if (root.val === node.val) {
+      return [root];
+    }
+    const findLeft = _findNode(root.left, node);
+    if (findLeft) {
+      return [root, ...findLeft];
+    }
+    const findRight = _findNode(root.right, node);
+    if (findRight) {
+      return [root, ...findRight];
+    }
+  }
+  const arrP = _findNode(root, p);
+  const arrQ = _findNode(root, q);
+  let i = 1;
+  while (arrP[i] && arrQ[i] && arrP[i].val === arrQ[i].val) {
+    i++;
+  }
+  return arrP[i - 1];
+};
+//剑指 Offer 68 - II. 二叉树的最近公共祖先-机智版
+var lowestCommonAncestor = function (root, p, q) {
+  if (!root) {
+    return false;
+  }
+  if (root.val === p.val || root.val === q.val) {
+    return root;
+  }
+  const l = lowestCommonAncestor(root.left, p, q);
+  const r = lowestCommonAncestor(root.right, p, q);
+  return l && r ? root : l || r;
+};
+//面试题 17.12. BiNode
+var convertBiNode = function (root) {
+  let ret = null;
+  let last = null;
+  while (root) {
+    if (root.left) {
+      let rightest = root.left;
+      while (rightest.right) {
+        rightest = rightest.right;
+      }
+      rightest.right = root;
+      const temp = root;
+      root = root.left;
+      temp.left = null;
+    } else {
+      if (last) {
+        last.right = root;
+      } else {
+        ret = root;
+      }
+      last = root;
+      root = root.right;
+    }
+  }
+  return ret;
+};
+//剑指 Offer II 052. 展平二叉搜索树
+var increasingBST = function (root) {
+  let ret = null;
+  let last = null;
+  while (root) {
+    if (root.left) {
+      let rightest = root.left;
+      while (rightest.right) {
+        rightest = rightest.right;
+      }
+      rightest.right = root;
+      const temp = root;
+      root = root.left;
+      temp.left = null;
+    } else {
+      if (last) {
+        last.right = root;
+      } else {
+        ret = root;
+      }
+      last = root;
+      root = root.right;
+    }
+  }
+  return ret;
+};
