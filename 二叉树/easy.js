@@ -862,3 +862,7 @@ var increasingBST = function (root) {
   }
   return ret;
 };
+
+module.exports = {
+  findNode,
+};
