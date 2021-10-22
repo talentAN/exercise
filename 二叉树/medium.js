@@ -4,6 +4,12 @@ function TreeNode(val, left, right) {
   this.left = left === undefined ? null : left;
   this.right = right === undefined ? null : right;
 }
+function sort(a, b) {
+  return a > b ? 1 : -1;
+}
+const [zero, one, two, three, four, five, six, seven, eight, nine] = [
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+].map(num => new TreeNode(num));
 //96. 不同的二叉搜索树
 const map = {
   0: 1,
@@ -216,17 +222,6 @@ var pruneTree = function (root) {
   }
   return root;
 };
-const [zero, one, two, three, four, five, six, seven, eight] = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(
-  num => new TreeNode(num)
-);
-three.left = five;
-three.right = one;
-five.left = six;
-five.right = two;
-two.left = seven;
-two.right = four;
-one.left = zero;
-one.right = eight;
 // 863. 二叉树中所有距离为 K 的结点
 function _runChildren(target, k) {
   if (!target) {
@@ -265,12 +260,362 @@ var distanceK = function (root, target, k) {
       ret.push(..._runChildren(target, k - distance));
     } else {
       const handledNode = route[j + 1];
-      const curNode = node.left && node.left.val === handledNode.val ? node.right : node.left;
-      ret.push(..._runChildren(curNode, k - distance - 1));
+      const key = node.left && node.left.val === handledNode.val ? 'left' : 'right';
+      node[key] = null;
+      ret.push(..._runChildren(node, k - distance));
     }
     distance++;
   }
   return ret;
 };
-console.info(distanceK(three, five, 2));
-// console.info(_runChildren(three, 2));
+// 863. 二叉树中所有距离为 K 的结点(dfs版)
+var distanceK = function (root, target, k) {
+  if (!target || k < 0) {
+    return [];
+  }
+  if (k === 0) {
+    return [target.val];
+  }
+  const parentMap = {};
+  let cdds = [root];
+  // 走一遍，标记所有的parent
+  while (cdds.length) {
+    const next_cdds = [];
+    for (let node of cdds) {
+      if (node.left) {
+        parentMap[node.left.val] = node;
+        next_cdds.push(node.left);
+      }
+      if (node.right) {
+        parentMap[node.right.val] = node;
+        next_cdds.push(node.right);
+      }
+    }
+    cdds = next_cdds;
+  }
+  const ret = [];
+  // 递归一遍
+  function dfs(node, from, distance) {
+    if (distance === 0) {
+      ret.push(node.val);
+      return;
+    }
+    node.left && node.left.val !== from.val && dfs(node.left, node, distance - 1);
+    node.right && node.right.val !== from.val && dfs(node.right, node, distance - 1);
+    parentMap[node.val] &&
+      parentMap[node.val].val !== from.val &&
+      dfs(parentMap[node.val], node, distance - 1);
+  }
+  dfs(target, target, k);
+  return ret;
+};
+// 331. 验证二叉树的前序序列化
+var isValidSerialization = function (preorder) {
+  if (preorder === '#') {
+    return true;
+  }
+  if (preorder[0] === '#' && preorder.length > 1) {
+    return false;
+  }
+  const arr = preorder.split(',');
+  const stark = [];
+  let curNode = new TreeNode(arr[0]);
+  stark.push(curNode);
+  let i = 1;
+  while (curNode && i < arr.length) {
+    const child = new TreeNode(arr[i]);
+    // 先生成root节点
+    if (!curNode) {
+      if (child === null) {
+        break;
+      } else {
+        curNode = child;
+        stark.push(child);
+      }
+    } else if (curNode.left === null) {
+      curNode.left = child;
+      if (child.val !== '#') {
+        curNode = child;
+        stark.push(child);
+      }
+    } else if (curNode.right === null) {
+      curNode.right = child;
+      if (child.val !== '#') {
+        stark.push(child);
+        curNode = child;
+      } else {
+        let node = null;
+        do {
+          node = stark.pop();
+        } while (node && node.left && node.left.val && node.right && node.right.val);
+        curNode = node;
+      }
+    }
+    i++;
+  }
+  // console.info(curNode, i);
+  return i >= arr.length && !curNode;
+};
+// // 331. 验证二叉树的前序序列化(蹲坑版)
+var isValidSerialization = function (preorder) {
+  if (preorder === '#') {
+    return true;
+  }
+  const arr = preorder.split(',');
+  let i = 0;
+  let positions = 0;
+  while (i < arr.length) {
+    if (positions < 0) {
+      return false;
+    }
+    const code = arr[i];
+    if (code === '#') {
+      positions--;
+    } else {
+      if (i > 0 && positions === 0) {
+        return false;
+      }
+      positions += i === 0 ? 2 : 1;
+    }
+    i++;
+  }
+  return positions === 0;
+};
+console.info(isValidSerialization('9,3,4,#,#,1,#,#,2,#,6,#,#'));
+console.info(isValidSerialization('1,#'));
+console.info(isValidSerialization('9,#,#,1'));
+// 623. 在二叉树中增加一行
+var addOneRow = function (root, val, depth) {
+  if (depth === 1) {
+    const ret = new TreeNode(val, root);
+    return ret;
+  }
+  if (depth === 2) {
+    root.left = new TreeNode(val, root.left);
+    root.right = new TreeNode(val, null, root.right);
+    return root;
+  }
+  if (root.left) {
+    addOneRow(root.left, val, depth - 1);
+  }
+  if (root.right) {
+    addOneRow(root.right, val, depth - 1);
+  }
+  return root;
+};
+//652. 寻找重复的子树
+var findDuplicateSubtrees = function (root) {
+  const map = {};
+  function dfs(node) {
+    const key = JSON.stringify(node);
+    map[key] = (map[key] || 0) + 1;
+    if (node.left) {
+      dfs(node.left);
+    }
+    if (node.right) {
+      dfs(node.right);
+    }
+  }
+  dfs(root);
+  return Object.keys(map)
+    .filter(key => map[key] > 1)
+    .map(str => JSON.parse(str));
+};
+// 可以用序列化的方式展示tree的结构
+var findDuplicateSubtrees = function (root) {
+  const ret = [];
+  const map = {};
+  function dfs(node) {
+    if (!node) {
+      return '#';
+    }
+    let key = `${node.val},${dfs(node.left)},${dfs(node.right)}`;
+    map[key] = (map[key] || 0) + 1;
+    if (map[key] === 2) {
+      ret.push(node);
+    }
+    return key;
+  }
+  dfs(root);
+  return ret;
+};
+//654. 最大二叉树
+var constructMaximumBinaryTree = function (nums) {
+  if (nums.length === 0) {
+    return null;
+  }
+  if (nums.length === 1) {
+    return new TreeNode(nums[0]);
+  }
+  const max = nums.reduce((pre, cur) => Math.max(pre, cur), -Infinity);
+  const i = nums.indexOf(max);
+  const root = new TreeNode(max);
+  root.left = constructMaximumBinaryTree(nums.slice(0, i));
+  root.right = constructMaximumBinaryTree(nums.slice(i + 1, nums.length));
+  return root;
+};
+// 662. 二叉树最大宽度 TODO:
+var widthOfBinaryTree = function (root) {
+  if (!root) {
+    return 0;
+  }
+  let res = 1;
+  let cdds = [root];
+  while (cdds.length) {
+    const next_head = [];
+    const next_tail = [];
+
+    let i = 0;
+    let j = cdds.length - 1;
+
+    while (i <= j) {
+      // 从前向后
+      const start = cdds[i];
+      if (!next_head.length) {
+        start.left && next_head.push(start.left);
+        if (next_head.length) {
+          next_head.push(start.right || '#');
+        } else {
+          start.right && next_head.push(start.right);
+        }
+      } else {
+        next_head.push(start.left || '#');
+        next_head.push(start.right || '#');
+      }
+      if (i < j) {
+        // 从后向前
+        const end = cdds[j];
+        if (!next_tail.length) {
+          end.right && next_tail.unshift(end.right);
+          if (next_tail.length) {
+            next_tail.unshift(end.left || '#');
+          } else {
+            end.left && next_tail.unshift(end.left);
+          }
+        } else {
+          next_tail.unshift(end.right || '#');
+          next_tail.unshift(end.left || '#');
+        }
+      }
+      i++;
+      j--;
+    }
+    cdds = [...next_head, ...next_tail];
+    while (cdds.length && cdds[cdds.length - 1] === '#') {
+      cdds.pop();
+    }
+    res = Math.max(cdds.length, res);
+  }
+  return res;
+};
+// one.left = two;
+// three.left = five;
+// five.left = six;
+// one.right = two;
+// two.right = nine;
+// nine.right = seven;
+console.info(widthOfBinaryTree(one));
+//129. 求根节点到叶节点数字之和
+var sumNumbers = function (root) {
+  if (!root) {
+    return 0;
+  }
+  if (!root.left && !root.right) {
+    return root.val;
+  }
+  let res = 0;
+  const arr = [root]; // 候选值
+  const stark = []; // 栈
+  while (arr.length) {
+    const node = arr.pop();
+    // 加入候选值
+    if (node.right) {
+      arr.push(node.right);
+    }
+    if (node.left) {
+      arr.push(node.left);
+    }
+    // 入栈操作
+    if (!stark.length) {
+      stark.push(node);
+    } else {
+      while (stark[stark.length - 1].left !== node && stark[stark.length - 1].right !== node) {
+        stark.pop();
+      }
+      stark.push(node);
+      if (!node.left && !node.right) {
+        res += stark.reduce((pre, cur) => pre + cur.val, '') * 1;
+      }
+    }
+  }
+  return res;
+};
+// 117. 填充每个节点的下一个右侧节点指针 II
+var connect = function (root) {
+  if (!root) {
+    return null;
+  }
+  let cdds = [root];
+  while (cdds.length) {
+    const next = [];
+    for (let i = 0; i < cdds.length; i++) {
+      cdds[i].next = cdds[i + 1] || null;
+      if (cdds[i].left) {
+        next.push(cdds[i].left);
+      }
+      if (cdds[i].right) {
+        next.push(cdds[i].right);
+      }
+    }
+    cdds = next;
+  }
+  return root;
+};
+// 116. 填充每个节点的下一个右侧节点指针
+var connect = function (root) {
+  if (!root) {
+    return null;
+  }
+  function dfs(node, father, isLeftChild) {
+    if (!father) {
+      node.next = null;
+    } else if (isLeftChild) {
+      node.next = father.right;
+    } else {
+      node.next = father.next ? father.next.left : null;
+    }
+    node.left && dfs(node.left, node, true);
+    node.right && dfs(node.right, node, false);
+  }
+  dfs(root, null, false);
+  return root;
+};
+// 114. 二叉树展开为链表
+var flatten = function (root) {
+  if (!root) {
+    return root;
+  }
+  function dfs(node, chainTail = null) {
+    const left = node.left;
+    const right = node.right;
+    let chainHead = null;
+    let chainTail = null;
+    if (node.left) {
+      node.left = null;
+      [node.right, nodeTail] = dfs(node.left);
+      next = dfs(node.left, next.right);
+    }
+    if (node.right) {
+      [nodeTail] = dfs(node.right);
+    }
+    return [];
+  }
+  dfs(root);
+  root = ret;
+};
+one.left = two;
+two.left = three;
+two.right = four;
+one.right = five;
+five.right = six;
+console.info(flatten(one));
