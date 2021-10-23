@@ -381,9 +381,9 @@ var isValidSerialization = function (preorder) {
   }
   return positions === 0;
 };
-console.info(isValidSerialization('9,3,4,#,#,1,#,#,2,#,6,#,#'));
-console.info(isValidSerialization('1,#'));
-console.info(isValidSerialization('9,#,#,1'));
+// console.info(isValidSerialization('9,3,4,#,#,1,#,#,2,#,6,#,#'));
+// console.info(isValidSerialization('1,#'));
+// console.info(isValidSerialization('9,#,#,1'));
 // 623. 在二叉树中增加一行
 var addOneRow = function (root, val, depth) {
   if (depth === 1) {
@@ -593,29 +593,209 @@ var connect = function (root) {
 // 114. 二叉树展开为链表
 var flatten = function (root) {
   if (!root) {
-    return root;
+    return null;
   }
-  function dfs(node, chainTail = null) {
-    const left = node.left;
-    const right = node.right;
-    let chainHead = null;
-    let chainTail = null;
-    if (node.left) {
+  function dfs(node) {
+    const { left, right } = node;
+    if (!left && !right) {
+      return node;
+    }
+    if (left) {
       node.left = null;
-      [node.right, nodeTail] = dfs(node.left);
-      next = dfs(node.left, next.right);
+      node.right = left;
+      node = dfs(left);
     }
-    if (node.right) {
-      [nodeTail] = dfs(node.right);
+    if (right) {
+      node.right = right;
+      node = dfs(right);
     }
-    return [];
+    return node;
   }
   dfs(root);
-  root = ret;
 };
-one.left = two;
-two.left = three;
-two.right = four;
-one.right = five;
-five.right = six;
-console.info(flatten(one));
+var flatten = function (root) {
+  if (!root) {
+    return null;
+  }
+  if (!root.left && !root.right) {
+    return root;
+  }
+  const { left, right } = root;
+  left && flatten(left);
+  right && flatten(right);
+  root.left = null;
+  if (left) {
+    root.right = left;
+    while (root && root.right) {
+      root = root.right;
+    }
+  }
+  root.right = right;
+};
+// one.left = two;
+// two.left = three;
+// two.right = four;
+// one.right = five;
+// five.right = six;
+// console.info(flatten(one));
+// 113. 路径总和 II
+var pathSum = function (root, targetSum) {
+  if (!root) {
+    return [];
+  }
+  if (!root.left && !root.right) {
+    return root.val === targetSum ? [[root.val]] : [];
+  }
+  const ret = [];
+  if (root.left) {
+    const leftRet = pathSum(root.left, targetSum - root.val);
+    if (leftRet.length) {
+      leftRet.forEach(item => {
+        ret.push([root.val, ...item]);
+      });
+    }
+  }
+  if (root.right) {
+    const rightRet = pathSum(root.right, targetSum - root.val);
+    if (rightRet.length) {
+      rightRet.forEach(item => {
+        ret.push([root.val, ...item]);
+      });
+    }
+  }
+  return ret;
+};
+// 109. 有序链表转换二叉搜索树
+var sortedListToBST = function (head) {
+  if (!head) {
+    return null;
+  }
+  const arr = [];
+  while (head) {
+    arr.push(head);
+    head = head.next;
+  }
+  function dfs(arr) {
+    if (!arr.length) {
+      return null;
+    }
+    if (arr.length === 1) {
+      arr[0].left = null;
+      arr[0].right = null;
+      return arr[0];
+    }
+    const len = arr.length;
+    const i = len % 2 === 0 ? len / 2 : (len - 1) / 2;
+    arr[i].left = dfs(arr.slice(0, i));
+    arr[i].right = dfs(arr.slice(i + 1, len));
+    return arr[i];
+  }
+  return dfs(arr);
+};
+// 107. 二叉树的层序遍历 II
+var levelOrderBottom = function (root) {
+  if (!root) {
+    return [];
+  }
+  const ret = [];
+  let cdds = [root];
+  while (cdds.length) {
+    const next_cdds = [];
+    const res_child = []; //
+    cdds.forEach(node => {
+      res_child.push(node.val);
+      node.left && next_cdds.push(node.left);
+      node.right && next_cdds.push(node.right);
+    });
+    cdds = next_cdds;
+    ret.unshift(res_child);
+  }
+  return ret;
+};
+// 107. 二叉树的层序遍历 II dfs版本
+var levelOrderBottom = function (root) {
+  if (!root) {
+    return [];
+  }
+  const ret = [[root.val]];
+  function dfs(node) {
+    if (!node.left && !node.right) {
+      return [node.val];
+    }
+
+    ret.unshift();
+  }
+  dfs(root);
+  return ret;
+};
+// 106. 从中序与后序遍历序列构造二叉树
+var buildTree = function (inorder, postorder) {
+  const len_in = inorder.length;
+  const len_po = postorder.length;
+  if (len_in === 0) {
+    return null;
+  }
+  if (len_in === 1) {
+    return new TreeNode(inorder[0]);
+  }
+  // 找到根节点
+  const rootVal = postorder[len_po - 1];
+  const root = new TreeNode(rootVal);
+  // 区分中序的左右子树
+  const i_root = inorder.findIndex(node => node === rootVal);
+  const inorder_left_arr = inorder.slice(0, i_root);
+  const inorder_right_arr = inorder.slice(i_root + 1, len_in);
+  // 区分后序的左右子树
+  const postorder_left_arr = postorder.slice(0, i_root);
+  const postorder_right_arr = postorder.slice(i_root, len_po - 1);
+  root.left = buildTree(inorder_left_arr, postorder_left_arr);
+  root.right = buildTree(inorder_right_arr, postorder_right_arr);
+  return root;
+};
+// 105. 从前序与中序遍历序列构造二叉树
+var buildTree = function (preorder, inorder) {
+  if (preorder.length === 0) {
+    return null;
+  }
+  if (preorder.length === 1) {
+    return new TreeNode(preorder[0]);
+  }
+  const rootVal = preorder[0];
+  const root = new TreeNode(rootVal);
+  const i_root = inorder.findIndex(node => node === rootVal);
+  // 中序左右子树
+  const left_inorder = inorder.slice(0, i_root);
+  const right_inorder = inorder.slice(i_root + 1, inorder.length);
+  // 前序左右子树
+  const left_preorder = preorder.slice(1, i_root + 1);
+  const right_preorder = preorder.slice(i_root + 1, preorder.length);
+  root.left = buildTree(left_preorder, left_inorder);
+  root.right = buildTree(right_preorder, right_inorder);
+  return root;
+};
+// 103. 二叉树的锯齿形层序遍历
+var zigzagLevelOrder = function (root) {
+  if (!root) {
+    return [[null]];
+  }
+  if (!root.left && !root.right) {
+    return [[root.val]];
+  }
+  const ret = [];
+  let cdds = [root];
+  let order = 'left';
+  while (cdds.length) {
+    const next_cdds = [];
+    const part_ret = [];
+    for (let node of cdds) {
+      const method = (order = 'left' ? 'push' : 'unshift');
+      part_ret[method](node.val);
+      node.left && next_cdds.push(node.left);
+      node.right && next_cdds.push(node.right);
+    }
+    cdds = next_cdds;
+    ret.push(part_ret);
+    order = 'left' ? 'right' : 'left';
+  }
+  return ret;
+};
