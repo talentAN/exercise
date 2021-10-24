@@ -788,14 +788,88 @@ var zigzagLevelOrder = function (root) {
     const next_cdds = [];
     const part_ret = [];
     for (let node of cdds) {
-      const method = (order = 'left' ? 'push' : 'unshift');
+      const method = order === 'left' ? 'push' : 'unshift';
       part_ret[method](node.val);
       node.left && next_cdds.push(node.left);
       node.right && next_cdds.push(node.right);
     }
     cdds = next_cdds;
     ret.push(part_ret);
-    order = 'left' ? 'right' : 'left';
+    order = order === 'left' ? 'right' : 'left';
   }
   return ret;
 };
+// 199. 二叉树的右视图
+var rightSideView = function (root) {
+  if (!root) {
+    return [];
+  }
+  let cdds = [root];
+  const ret = [];
+  while (cdds.length) {
+    ret.push(cdds[cdds.length - 1].val);
+    const next_cdds = [];
+    for (let node of cdds) {
+      node.left && next_cdds.push(node.left);
+      node.right && next_cdds.push(node.right);
+    }
+    cdds = next_cdds;
+  }
+  return ret;
+};
+// 222. 完全二叉树的节点个数
+var countNodes = function (root) {
+  if (!root) {
+    return 0;
+  }
+  let height_l = 0;
+  let height_r = 0;
+  let { left, right } = root;
+  while (left) {
+    height_l++;
+    left = left.left;
+  }
+  while (right) {
+    height_r++;
+    right = right.right;
+  }
+  if (height_r === height_l) {
+    return Math.pow(2, height_l + 1) - 1;
+  }
+  return 1 + countNodes(root.left) + countNodes(root.right);
+};
+// 230. 二叉搜索树中第K小的元素
+var kthSmallest = function (root, k) {
+  if (!root) {
+    return null;
+  }
+  while (root) {
+    if (root.left) {
+      let rightest = root.left;
+      while (rightest.right && rightest.right !== root) {
+        rightest = rightest.right;
+      }
+      if (rightest.right === null) {
+        rightest.right = root;
+        root = root.left;
+      } else {
+        if (k === 1) {
+          return root.val;
+        }
+        rightest.right = null;
+        root = root.right;
+        k--;
+      }
+    } else {
+      if (k === 1) {
+        return root.val;
+      }
+      root = root.right;
+      k--;
+    }
+  }
+};
+three.left = one;
+one.right = two;
+three.right = four;
+console.info(kthSmallest(three));
