@@ -1,4 +1,4 @@
-const { findNode } = require('./easy');
+const { findNode, maxDepth } = require('./easy');
 function TreeNode(val, left, right) {
   this.val = val === undefined ? 0 : val;
   this.left = left === undefined ? null : left;
@@ -1014,16 +1014,95 @@ var findFrequentTreeSum = function (root) {
     const sumLeft = root.left ? nodeMap.get(root.left) || dfs(root.left) : 0;
     const sumRight = root.right ? nodeMap.get(root.right) || dfs(root.right) : 0;
     sum = root.val + sumLeft + sumRight;
-    map[sum] = map[sum] || 0 + 1;
+    map[sum] = (map[sum] || 0) + 1;
     max = Math.max(map[sum], max);
     nodeMap.set(root, sum);
     return sum;
   };
-
   dfs(root);
   return Object.keys(map).filter(key => map[key] === max);
 };
-const a = new TreeNode(-5);
-five.left = two;
-five.right = a;
-console.info(findFrequentTreeSum(five));
+// const a = new TreeNode(-5);
+// five.left = two;
+// five.right = a;
+// console.info(findFrequentTreeSum(five));
+// 513. 找树左下角的值
+var findBottomLeftValue = function (root) {
+  if (!root) {
+    return null;
+  }
+  if (!root.left && !root.right) {
+    return root.val;
+  }
+  let cdds = [root];
+  while (cdds.length) {
+    const next_cdds = [];
+    for (let node of cdds) {
+      node.left && next_cdds.push(node.left);
+      node.right && next_cdds.push(node.right);
+    }
+    if (!next_cdds.length) {
+      return cdds[0].val;
+    }
+    cdds = next_cdds;
+  }
+};
+// 515. 在每个树行中找最大值
+var convertBST = function (root) {
+  if (!root || (!root.left && !root.right)) {
+    return root;
+  }
+  const sumMap = new Map();
+  const sum = node => {
+    if (!node) {
+      return 0;
+    }
+    if (sumMap.get(node) !== undefined) {
+      return sumMap.get(node);
+    }
+    let res = node.val;
+    if (node.left) {
+      res += sum(node.left);
+    }
+    if (node.right) {
+      res += sum(node.right);
+    }
+    sumMap.set(node, res);
+    return res;
+  };
+  const dfs = (node, acc = 0) => {
+    const sumRight = sum(node.right);
+    node.val += sumRight + acc;
+    node.left && dfs(node.left, node.val);
+    node.right && dfs(node.right, acc);
+  };
+  dfs(root);
+  return root;
+};
+// 655. 输出二叉树
+var printTree = function (root) {
+  if (!root) {
+    return [''];
+  }
+  if (!root.left && !root.right) {
+    return [root.val];
+  }
+  // 先整一个返回值
+  const depth = maxDepth(root);
+  const template = new Array(Math.pow(2, depth) - 1).fill('');
+  const ret = new Array(depth).fill('').map(item => new Array(Math.pow(2, depth) - 1).fill(''));
+  const dfs = (node, i_depth, i_start, i_end) => {
+    const target_arr = ret[i_depth];
+    const i_node = i_end === i_start ? i_start : (i_end - i_start) / 2 + i_start;
+    target_arr[i_node] = node.val + '';
+    node.left && dfs(node.left, i_depth + 1, i_start, i_node - 1);
+    node.right && dfs(node.right, i_depth + 1, i_node + 1, i_end);
+  };
+  dfs(root, 0, 0, template.length - 1);
+  return ret;
+};
+// one.left = two;
+// one.right = three;
+// two.right = four;
+
+console.info(printTree(one));
