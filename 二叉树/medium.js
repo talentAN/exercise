@@ -514,7 +514,7 @@ var widthOfBinaryTree = function (root) {
 // one.right = two;
 // two.right = nine;
 // nine.right = seven;
-console.info(widthOfBinaryTree(one));
+// console.info(widthOfBinaryTree(one));
 //129. 求根节点到叶节点数字之和
 var sumNumbers = function (root) {
   if (!root) {
@@ -869,7 +869,161 @@ var kthSmallest = function (root, k) {
     }
   }
 };
-three.left = one;
-one.right = two;
-three.right = four;
-console.info(kthSmallest(three));
+// three.left = one;
+// one.right = two;
+// three.right = four;
+// console.info(kthSmallest(three));
+
+var lowestCommonAncestor = function (root, p, q) {
+  if (!root) {
+    return false;
+  }
+  if (root === p || root === q) {
+    return root;
+  }
+  const l = root.left && lowestCommonAncestor(root.left, p, q);
+  const r = root.right && lowestCommonAncestor(root.right, p, q);
+  return l && r && l !== r ? root : l || r;
+};
+// 337. 打家劫舍 III
+var rob = function (root) {
+  const dfs = node => {
+    if (!node) {
+      return [0, 0];
+    }
+    const [l, r] = [dfs(node.left), dfs(node.right)];
+    const selected = node.val + l[1] + r[1];
+    const notSelected = Math.max(...l) + Math.max(...r);
+    return [selected, notSelected];
+  };
+  return Math.max(...dfs(root));
+};
+//437. 路径总和 III
+var pathSum = function (root, targetSum) {
+  if (!root) {
+    return 0;
+  }
+  if (!root.left && !root.right) {
+    return root.val === targetSum ? 1 : 0;
+  }
+  let ret = 0;
+  const dfs = (node, targetSum) => {
+    if (!node) {
+      return;
+    }
+    if (node.val === targetSum) {
+      ret++;
+    }
+    node.left && dfs(node.left, targetSum - node.val);
+    node.right && dfs(node.right, targetSum - node.val);
+  };
+  let cdds = [root];
+  while (cdds.length) {
+    const next_cdds = [];
+    for (let node of cdds) {
+      dfs(node, targetSum);
+      node.left && next_cdds.push(node.left);
+      node.right && next_cdds.push(node.right);
+    }
+    cdds = next_cdds;
+  }
+  return ret;
+};
+// 449. 序列化和反序列化二叉搜索树
+// 要不是前面做过了前序+中序，中序+后序的解析，还真想不到这道题该怎么接
+var serialize = function (root) {
+  if (!root) {
+    return '';
+  }
+  root.isStart = true;
+  const ret = '';
+  while (root) {
+    if (root.left) {
+      const rightest = root.right;
+      while (rightest.right && rightest.right !== root) {
+        rightest = rightest.right;
+      }
+      // 第一次运行
+      if (rightest === null) {
+        rightest.right = root;
+        root = root.left;
+      } else {
+        // 左子树已完成，执行，解环
+        ret += root.isStart ? `,${root.val}-isStart` : `,${root.val}`;
+        root = root.right;
+        rightest.right = null;
+      }
+    } else {
+      ret += `,${root.val}`;
+      root = root.right;
+    }
+  }
+  return ret;
+};
+var deserialize = function (data) {
+  if (!data) {
+    return null;
+  }
+  const arr = data.split(',');
+  const i_root = arr.findIndex(node => node.indexOf('-isStart') !== -1);
+  const rootVal = arr[i_root].substring(0, arr[i_root].length - 8);
+  const root = new TreeNode(rootVal);
+  const dfs = arr => {};
+  return root;
+};
+// 450. 删除二叉搜索树中的节点
+var deleteNode = function (root, key) {
+  if (!root) {
+    return null;
+  }
+  if (!root.left && !root.right) {
+    return root.val === key ? null : root;
+  }
+  if (root.val > key) {
+    root.left = deleteNode(root.left, key);
+  }
+  if (root.val < key) {
+    root.right = deleteNode(root.right, key);
+  }
+  if (root.val === key) {
+    const { left, right } = root;
+    if (!left) {
+      return right;
+    }
+    if (!right) {
+      return left;
+    }
+    root = left;
+    const dummy = root;
+    while (root.right) {
+      root = root.right;
+    }
+    root.right = right;
+    return dummy;
+  }
+  return root;
+};
+// 508. 出现次数最多的子树元素和
+var findFrequentTreeSum = function (root) {
+  let max = 0; // 出现最多的次数
+  const map = {}; // {sum: count}
+  const nodeMap = new Map(); // 节点结果缓存
+
+  const dfs = root => {
+    let sum = root.val;
+    const sumLeft = root.left ? nodeMap.get(root.left) || dfs(root.left) : 0;
+    const sumRight = root.right ? nodeMap.get(root.right) || dfs(root.right) : 0;
+    sum = root.val + sumLeft + sumRight;
+    map[sum] = map[sum] || 0 + 1;
+    max = Math.max(map[sum], max);
+    nodeMap.set(root, sum);
+    return sum;
+  };
+
+  dfs(root);
+  return Object.keys(map).filter(key => map[key] === max);
+};
+const a = new TreeNode(-5);
+five.left = two;
+five.right = a;
+console.info(findFrequentTreeSum(five));
