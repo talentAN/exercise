@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "stage": "git add . && git commit -am 'update' && git push origin HEAD"
+    "stage": "git add . && git commit -am 'update' && git push origin HEAD",
+    "test": "jest"
   },
   "repository": "git@github.com:talentAN/exercise.git",
   "author": "zhen.an <az15921869329@gmail.com>",

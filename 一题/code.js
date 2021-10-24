@@ -23,6 +23,7 @@ const typeMap = {
   weakMap: 'WeakMap',
   weakSet: 'WeakSet',
   weakRef: 'WeakRef',
+  regExp: 'RegExp',
   object: 'Object',
 };
 const _getType = obj => {
@@ -65,41 +66,11 @@ function deepClone(obj) {
       break;
 
     case typeMap.object:
+    default:
       break;
   }
-  const ret = new Object(null);
-  Object.keys(obj).forEach(key => {
-    const val = obj[key];
-    const type = _getType(val);
-    switch (type) {
-      case typeMap.undefined:
-      case typeMap.string:
-      case typeMap.number:
-      case typeMap.boolean:
-        ret[key] = val;
-        break;
-      case typeMap.array:
-        ret[key] = new Array(val.length);
-        val.forEach(item => {});
-        break;
-      case typeMap.set:
-        break;
-
-      case typeMap.map:
-        break;
-
-      case typeMap.function:
-        break;
-
-      case typeMap.weakMap:
-        break;
-
-      case typeMap.weakSet:
-        break;
-
-      case typeMap.object:
-        break;
-    }
-    return ret;
-  });
 }
+
+module.exports = {
+  deepClone,
+};
