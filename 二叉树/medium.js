@@ -508,6 +508,40 @@ var widthOfBinaryTree = function (root) {
   }
   return res;
 };
+var widthOfBinaryTree = function (root) {
+  let maxWidth = 0;
+  if (root) {
+    let queue = [root];
+    let xs = [1];
+    while (queue.length > 0) {
+      let size = queue.length;
+      let left, right;
+      if (size === 1) {
+        xs = [1];
+      }
+      for (let i = 0; i < size; i++) {
+        let node = queue.shift();
+        let x = xs.shift();
+        if (i === 0) {
+          left = x;
+        }
+        if (i === size - 1) {
+          right = x;
+        }
+        if (node.left) {
+          queue.push(node.left);
+          xs.push(x * 2);
+        }
+        if (node.right) {
+          queue.push(node.right);
+          xs.push(x * 2 + 1);
+        }
+      }
+      maxWidth = Math.max(maxWidth, right - left + 1);
+    }
+  }
+  return maxWidth;
+};
 // one.left = two;
 // three.left = five;
 // five.left = six;
@@ -1104,5 +1138,91 @@ var printTree = function (root) {
 // one.left = two;
 // one.right = three;
 // two.right = four;
+// console.info(printTree(one));
+// 894. 所有可能的满二叉树
+var allPossibleFBT = function (n) {
+  if (n % 2 === 0) {
+    return [];
+  }
+  if (n === 0) {
+    return [null];
+  }
+  if (n === 1) {
+    return [new TreeNode(0)];
+  }
+  const ret = [];
+  for (let i = 1; i <= n - 1; i += 2) {
+    const leftCdds = allPossibleFBT(i);
+    const rightCdds = allPossibleFBT(n - i - 1);
+    for (let k = 0; k < leftCdds.length; k++) {
+      for (let j = 0; j < rightCdds.length; j++) {
+        const root = new TreeNode(0);
+        root.left = leftCdds[k];
+        root.right = rightCdds[j];
+        ret.push(root);
+      }
+    }
+  }
+  return ret;
+};
+// 951. 翻转等价二叉树
+const isEqual = (node1, node2) => {
+  return (!node1 && !node2) || (node1 && node2 && node1.val === node2.val);
+};
+var flipEquiv = function (root1, root2) {
+  if (!root1 && !root2) {
+    return true;
+  }
+  if (!root1 || !root2) {
+    return false;
+  }
+  if (root1.val !== root2.val) {
+    return false;
+  }
+  const { left: left1, right: right1 } = root1;
+  const { left: left2, right: right2 } = root2;
 
-console.info(printTree(one));
+  if (isEqual(left1, left1) && isEqual(right1, right2)) {
+    return flipEquiv(left1, left2) && flipEquiv(right2, right1);
+  }
+  if (isEqual(left1, right2) && isEqual(right1, left2)) {
+    return flipEquiv(left1, right2) && flipEquiv(right1, left2);
+  }
+  return false;
+};
+//958. 二叉树的完全性检验
+var isCompleteTree = function (root) {
+  const depth = maxDepth(root);
+  let level = 1;
+  let cdds = [root];
+  while (level < depth - 1) {
+    const next_cdds = [];
+    for (let node of cdds) {
+      if (!node.left || !node.right) {
+        return false;
+      }
+      next_cdds.push(node.left, node.right);
+    }
+    cdds = next_cdds;
+    level++;
+  }
+  let hasEmpty = false;
+  for (let node of cdds) {
+    if (hasEmpty && (node.left || node.right)) {
+      return false;
+    } else {
+      if (!node.left) {
+        hasEmpty = true;
+      }
+      if (hasEmpty && node.right) {
+        return false;
+      }
+      if (!hasEmpty && !node.right) {
+        hasEmpty = true;
+      }
+    }
+  }
+  return true;
+};
+//979. 在二叉树中分配硬币
+var distributeCoins = function (root) {};
