@@ -3,7 +3,7 @@
  * - 基础数据类型 √
  * - 特殊数据类型
  *  - 正则
- *  - Symbol为key
+ *  - Symbol为key √
  * - 循环引用
  * */
 // 工具函数
@@ -19,20 +19,21 @@ const typeMap = {
   array: 'Array',
   set: 'Set',
   map: 'Map',
-  function: 'Function',
   weakMap: 'WeakMap',
   weakSet: 'WeakSet',
   weakRef: 'WeakRef',
   regExp: 'RegExp',
+  function: 'Function',
   object: 'Object',
 };
 const _getType = obj => {
   return Object.prototype.toString.call(obj).slice(8, -1);
 };
-
+// 第六题 deepCopy
 function deepClone(obj) {
   const type = _getType(obj);
   let ret = undefined;
+  let keys = undefined;
   switch (type) {
     case typeMap.undefined:
     case typeMap.string:
@@ -54,21 +55,34 @@ function deepClone(obj) {
       }
       return ret;
     case typeMap.map:
-      break;
-
+      keys = obj.keys();
+      for (let key of keys) {
+        ret[key] = deepClone(obj[key]);
+      }
+      return ret;
     case typeMap.function:
-      break;
-
-    case typeMap.weakMap:
-      break;
-
-    case typeMap.weakSet:
-      break;
-
+      const fnStr = obj.toString();
+      return obj.prototype ? eval(`${fnStr}`) : eval(fnStr);
     case typeMap.object:
+      keys = obj.keys();
+      const symbolKeys = obj.getOwnPropertySymbols();
+      for (let key of [...keys, ...symbolKeys]) {
+        ret[key] = deepClone(obj[key]);
+      }
+      return ret;
+    case typeMap.weakMap:
+    case typeMap.weakSet:
+    // 不能枚举，复制个屁呀...
     default:
       break;
   }
+}
+// 第14题，实现一个new
+function _new(func, param) {
+  const ret = {};
+  func.call(ret, param);
+  ret.__proto__ = func.prototype;
+  return ret;
 }
 
 module.exports = {
