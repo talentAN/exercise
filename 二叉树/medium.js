@@ -1225,4 +1225,8 @@ var isCompleteTree = function (root) {
   return true;
 };
 //979. 在二叉树中分配硬币
-var distributeCoins = function (root) {};
+var distributeCoins = function (root) {
+  let res = 0;
+  const arr = [root];
+  return res;
+};
