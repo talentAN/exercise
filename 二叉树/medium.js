@@ -1230,3 +1230,75 @@ var distributeCoins = function (root) {
   const arr = [root];
   return res;
 };
+// 889. 根据前序和后序遍历构造二叉树
+var constructFromPrePost = function (preorder, postorder) {
+  if (!preorder.length) {
+    return null;
+  }
+  if (preorder.length === 1) {
+    return new TreeNode(preorder[0]);
+  }
+  const root = new TreeNode(preorder[0]);
+  let i = 1;
+  let foundLeft = false;
+  while (!foundLeft) {
+    const preArr = preorder.slice(1, i + 1).sort(sort);
+    const postArr = postorder.slice(0, i).sort(sort);
+    if (preArr.join(',') === postArr.join(',')) {
+      foundLeft = true;
+    } else {
+      i++;
+    }
+  }
+  // 只有左子树或右子树
+  if (i === preorder.length - 1) {
+    root.left = constructFromPrePost(
+      preorder.slice(1, preorder.length),
+      postorder.slice(0, postorder.length - 1)
+    );
+    root.right = null;
+  } else {
+    // 前序左右子树
+    const left_preorder_arr = preorder.slice(1, i + 1);
+    const right_preorder_arr = preorder.slice(i + 1, preorder.length);
+    // 后序左右子树
+    const left_postorder_arr = postorder.slice(0, i);
+    const right_postorder_arr = postorder.slice(i, postorder.length - 1);
+    root.left = constructFromPrePost(left_preorder_arr, left_postorder_arr);
+    root.right = constructFromPrePost(right_preorder_arr, right_postorder_arr);
+  }
+  return root;
+};
+// 输入：pre = [1,2,4,5,3,6,7], post = [4,5,2,6,7,3,1]
+// 输出：[1,2,3,4,5,6,7]
+// 919. 完全二叉树插入器
+var CBTInserter = function (root) {
+  if (!root) {
+    this.tree = null;
+  }
+  this.tree = root;
+  this.dummy = root;
+};
+CBTInserter.prototype.insert = function (val) {
+  let done = false;
+  const next = [];
+  for (let i = 0; i < this.cdds.length; i++) {
+    if (!this.cdds[i].left) {
+      this.cdds[i].left = new TreeNode(val);
+      return this.cdds[i];
+    }
+    if (!this.cdds[i].right) {
+      this.cdds[i].right = new TreeNode(val);
+      return this.cdds[i];
+    }
+    next.push(this.cdds[i].left, next.push(this.cdds[i].right));
+  }
+  if (!done) {
+    this.cdds = next;
+    this.cdds[0].left = new TreeNode(val);
+    return this.cdds[0];
+  }
+};
+CBTInserter.prototype.get_root = function () {
+  return this.dummy;
+};
