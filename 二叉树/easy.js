@@ -865,4 +865,5 @@ var increasingBST = function (root) {
 module.exports = {
   findNode,
   maxDepth,
+  lowestCommonAncestor,
 };

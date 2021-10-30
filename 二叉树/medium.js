@@ -1226,9 +1226,22 @@ var isCompleteTree = function (root) {
 };
 //979. 在二叉树中分配硬币
 var distributeCoins = function (root) {
-  let res = 0;
-  const arr = [root];
-  return res;
+  if (!root) {
+    return 0;
+  }
+  let ret = 0;
+  const dfs = node => {
+    if (!node) {
+      return 1;
+    }
+    const leftVal = dfs(node.left);
+    const rightVal = dfs(node.right);
+    ret += Math.abs(1 - leftVal);
+    ret += Math.abs(1 - rightVal);
+    return node.val + (leftVal - 1) + (rightVal - 1);
+  };
+  dfs(root);
+  return ret;
 };
 // 889. 根据前序和后序遍历构造二叉树
 var constructFromPrePost = function (preorder, postorder) {
@@ -1301,4 +1314,37 @@ CBTInserter.prototype.insert = function (val) {
 };
 CBTInserter.prototype.get_root = function () {
   return this.dummy;
+};
+//865. 具有所有最深节点的最小子树
+var subtreeWithAllDeepest = function (root) {
+  if (!root) {
+    return null;
+  }
+  if (!root.left && !root.right) {
+    return root;
+  }
+  // 找到最深节点的集合
+  let deepest_nodes = [root];
+  while (deepest_nodes.length) {
+    const next = [];
+    deepest_nodes.forEach(node => {
+      if (node.left) {
+        node.left.father = node;
+        next.push(node.left);
+      }
+      if (node.right) {
+        node.right.father = node;
+        next.push(node.right);
+      }
+    });
+    if (next.length) {
+      deepest_nodes = next;
+    } else {
+      break;
+    }
+  }
+  if (deepest_nodes.length === 1) {
+    return deepest_nodes[0];
+  }
+  return deepest_nodes.reduce((pre, cur) => lowestCommonAncestor(root, pre, cur), deepest_nodes[0]);
 };
