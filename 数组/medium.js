@@ -128,3 +128,29 @@ var searchRange = function (nums, target) {
   let start = 0;
   let end = nums.length - 1;
 };
+// 40. 组合总和 II
+var combinationSum2 = function (candidates, target) {
+  candidates.sort(sort);
+  while (candidates[candidates.length - 1] > target) {
+    candidates.length = candidates.length - 1;
+  }
+  const ret = [];
+  candidates.forEach((c, i) => {
+    if (c === target) {
+      ret.push([c]);
+    } else {
+      const cdds = combinationSum2(candidates.slice(i + 1, candidates.length), target - c);
+      if (cdds.length) {
+        for (let cdd of cdds) {
+          ret.push([c, ...cdd]);
+        }
+      }
+    }
+    while (c === candidates[i + 1]) {
+      i++;
+    }
+  });
+  return Array.from(new Set(ret.map(r => r.join(','))))
+    .map(s => s.split(','))
+    .map(arr => arr.map(num => num * 1));
+};
