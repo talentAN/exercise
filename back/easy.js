@@ -10,10 +10,9 @@ var readBinaryWatch = function (turnedOn) {
       return [0];
     }
     const ret = [];
-    for(let i = 0; i<num; i++){
+    for(let i = 0; i<hours.length-num; i++){
       const ret
     }
-    for (let i = start; i < num; i++) {}
   }
   function _getMinute() {}
   const ret = [];
