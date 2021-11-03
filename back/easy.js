@@ -1,4 +1,4 @@
-// 401. 二进制手表
+// 401. 二进制手表 这狗日的题跟答案一比，老子真是tm深刻的意识到正着来太麻烦就他妈要倒着来！！！
 var readBinaryWatch = function (turnedOn) {
   if (!turnedOn) {
     return ['00:00'];
