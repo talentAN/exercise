@@ -1,0 +1,22 @@
+Q: 一个浏览器页面包括几个进程？
+A: Process是系统进程资源分配和调度的基本单元，Tailor是CPU调用的基本单位。一个页面要几个进程？主进程（渲染界面）的总要一个吧；插件总要一个吧；GPU也得弄一个；总得有个管事儿的总体管理这些吧，页面的管理控制要一个；
+
+Q: 每个页面都用同一个进程？
+A: 浏览器又不傻，该复用的复用，用rel来控制，同源页面共享渲染进程。
+
+Q: 每个页面就一个渲染进程？
+A: iFrame表示不服。不同源爸爸凭啥跟你用一个。
+
+Q: IE为啥总容易崩？还不是一个进程承担了太多了事情。
+
+Q: 每一轮 Event Loop 都会伴随着渲染吗？
+A: 先得看看一轮Event Loop 里都干了啥。 FIXME: 一轮event loop里面会执行多个setTimeout？
+
+requestAnimationFrame 产生宏任务还是微任务？
+
+requestAnimationFrame 在渲染前还是后执行？在 microTask 的前还是后？
+
+requestIdleCallback 在渲染前还是后执行？在 microTask 的前还是后？
+
+A: DOM 事件与 JS trigger 是否有区别？
+Dom事件走的是event loop， trigger直接执行JS

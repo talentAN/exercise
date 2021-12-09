@@ -84,7 +84,88 @@ function _new(func, param) {
   ret.__proto__ = func.prototype;
   return ret;
 }
+const sleep = time => {
+  return new Promise(resolve => {
+    setTimeout(resolve, time);
+  });
+};
+// 实现一个LazyMan
+class LazyMan {
+  constructor(name) {
+    this.name = '';
+    this.queue = [];
+    this.init(name);
+  }
+  init(name) {
+    this.name = name;
+    console.info('this is ', name);
+    const that = this;
+    setTimeout(() => {
+      that.next();
+    }, 0);
+    return this;
+  }
+  next() {
+    if (this.queue.length) {
+      const fn = this.queue.shift();
+      fn();
+    }
+  }
+  eat(food) {
+    this.queue.push(() => {
+      console.info(this.name, ' eat ', food);
+      this.next();
+    });
+    return this;
+  }
+  sleep(time) {
+    const that = this;
+    this.queue.push(() => {
+      setTimeout(() => that.next.call(that), time * 1000);
+    });
+    return this;
+  }
+}
+new LazyMan('Tony').eat('lunch').sleep(2).eat('dinner');
 
+// 第 81 题：打印出 1 - 10000 之间的所有对称数
+const symmetry = num => {
+  const cdds = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  if (num === 1) {
+    return cdds;
+  }
+  if (num % 2 === 0) {
+  } else {
+    for (let i = 0; i <= 9; i++) {
+      const len = (num - 1) / 2;
+      const max = '9'.repeat(len) * 1;
+      for (let j = 1; j <= max; j++) {
+        const str = j + '';
+        ret.push(str + i + str.reverse());
+      }
+    }
+  }
+  if (num === 2) {
+    return [11, 22, 33, 44, 55, 66, 77, 88, 99];
+  }
+  const ret = [];
+};
+// 实现一个curry化add
+function add() {
+  const args = [...arguments];
+  if (args.length) {
+    return function(){
+      const _args = [...arguments];
+      if(_args.length === 0){
+        
+      }
+      if()
+      return add(...args, ...arguments);
+    }
+  } else {
+    return args.reduce((acc, cur)=>acc+cur, 0);
+  }
+}
 module.exports = {
   deepClone,
 };

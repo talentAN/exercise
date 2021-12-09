@@ -105,7 +105,21 @@
   - 爸爸没想起来Object.valueOf
 第 52 题：怎么让一个 div 水平垂直居中？
   - Layout还得刷一遍；
-
+第 56 题：要求设计 LazyMan 类，实现以下功能。
+  - 别说，爸爸不自己写一次，还真没发现里面的一些坑
+第 57 题：分析比较 opacity: 0、visibility: hidden、display: none 优劣和适用场景。
+  - opacity可以硬件加速，visibility不改dom树，display不增加dom，快；
+  - 好吧，爸爸的确没注意visibility不能点击，opacity可以；visibility子节点可以自己猫头，opacity不行。
+第 58 题：箭头函数与普通函数（function）的区别是什么？构造函数（function）可以使用 new 生成实例，那么箭头函数可以吗？为什么？
+  - 这不就爸爸之前说的么。箭头函数存粹啊，什么call、apply、argument、原型链，统统滚蛋吧。
+第 60 题：已知如下代码，如何修改才能让图片宽度为 300px ？注意下面代码不可修改。
+  - 爸爸第一反应是加个father盖住它，然后想想加个max-width也行，scale到是真没想过。
+第 61 题：介绍下如何实现 token 加密
+  - 为啥要加密？你登录了，我知道你登录了，后面我怎么知道一直是你，不是谁偷了你的信息来登录呢？给你个凭证，每次把凭证吐给我。
+第 70 题： 介绍下 webpack 热更新原理，是如何做到在不刷新浏览器的前提下更新页面的
+  - 三个阶段不会少：watch file， 重新编译模块，socket通知刷新
+第 79 题：input 搜索如何防抖，如何处理中文输入
+  - 不是做到这道题，爸爸还真是不知道onCompositionStart这个事件
 思考:
 1. 为什么要设计箭头函数？
   - 我的理解是：让方法存粹化。老的function有太多对象的影子在里面，各种call、apply、this、argument等等...
@@ -118,4 +132,5 @@
 - TODO: 
   1. React工作原理
   2. 渲染引擎Layout、paint计算机制；
-  3. BFC, IFC
+  3. BFC, IFC，盒子模型
+  4. 手写Promise
