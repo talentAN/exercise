@@ -254,3 +254,50 @@ var findWords = function (words) {
 
   return ret;
 };
+var isValidSudoku = function (board) {
+  let i;
+  // 横向是否合理
+  for (i = 0; i < 9; i++) {
+    const arr = board[i];
+    const map = {};
+    for (let j = 0; j < 9; j++) {
+      if (map[arr[j]]) {
+        return false;
+      }
+      if (arr[j] !== '.') {
+        map[arr[j]] = true;
+      }
+    }
+  }
+  // 纵向是否合理
+  for (i = 0; i < 9; i++) {
+    const map = {};
+    for (let j = 0; j < 9; j++) {
+      if (map[board[j][i]]) {
+        return false;
+      }
+      if (board[j][i] !== '.') {
+        map[board[j][i]] = true;
+      }
+    }
+  }
+  // 3*3是否合理
+  for (i = 0; i < 9; i += 3) {
+    const i_cdd = [i, i + 1, i + 2];
+    for (let j = 0; j < 9; j += 3) {
+      const j_cdd = [j, j + 1, j + 2];
+      const map = {};
+      for (let _i = i_cdd[0]; _i <= i_cdd[i_cdd.length - 1]; _i++) {
+        for (let _j = j_cdd[0]; _j <= j_cdd[j_cdd.length - 1]; _j++) {
+          if (map[board[_i][_j]]) {
+            return false;
+          }
+          if (board[_i][_j] !== '.') {
+            map[board[_i][_j]] = true;
+          }
+        }
+      }
+    }
+  }
+  return true;
+};

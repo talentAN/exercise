@@ -128,6 +128,32 @@ var searchRange = function (nums, target) {
   let start = 0;
   let end = nums.length - 1;
 };
+var combinationSum = function (candidates, target) {
+  candidates.sort(sort);
+  const ret = [];
+  // 比target大的都干掉
+  const last = candidates.findIndex(c => c > target);
+  if (last > -1) {
+    candidates.length = last;
+  }
+  if (candidates.length === 0) {
+    return [];
+  }
+  const len = candidates.length;
+  for (let i = len - 1; i >= 0; i--) {
+    if (candidates[i] === target) {
+      ret.push([target]);
+    } else {
+      const cdds = combinationSum(candidates.slice(0, i + 1), target - candidates[i]);
+      if (cdds.length) {
+        for (let cdd of cdds) {
+          ret.push([...cdd, candidates[i]]);
+        }
+      }
+    }
+  }
+  return ret;
+};
 // 40. 组合总和 II
 var combinationSum2 = function (candidates, target) {
   candidates.sort(sort);
