@@ -632,31 +632,23 @@ var numSquares = function(n) {
   return dp[n]
 };
 // 300. 最长递增子序列
-const map={};
-const key=arr=>arr.join('');
 var lengthOfLIS = function(nums) {
   if(nums.length<2){
     return nums.length;
   }
-  const _key=key(nums);
-  if(map[_key]){
-    return map[_key]
-  }
-  let ret=1;
-  for(let i=0;i<nums.length;i++){
-     // 找到所有大于它的项
-    const next_arr=[];
-    for(let j=i+1;j<nums.length;j++){
-      if(nums[j]>nums[i]){
-        next_arr.push(nums[j]);
+  let ret = -Infinity;
+  const dp = [1]
+  for(let i=1;i<nums.length;i++){
+    dp[i]=1;
+    for(let j=0; j<i-1;j++){
+      if(nums[i]>nums[j]){
+        dp[i]=Math.max(dp[i],dp[j]+1);
+        ret=Math.max(ret,dp[i]);
       }
     }
-    ret=Math.max(ret,1+lengthOfLIS(next_arr));
   }
-  map[_key]=ret;
-  return map[_key]
+  return ret;
 };
-
 // TODO: 309. 最佳买卖股票时机含冷冻期
 var maxProfit = function(prices) {
   const len = prices.length;
@@ -668,25 +660,243 @@ var maxProfit = function(prices) {
   }
 
 };
-
-// 313. 超级丑数
+// 313. 超级丑数 //  超时了
 var nthSuperUglyNumber = function(n, primes) {
   if(n===1){
     return 1;
   }
-  const dp=[1,primes[0]];
-  let filled = false;
-  // 先填满再看
-  while(dp.length<n-1 && !filled){
-    let max=dp[dp.length-1];
-    for(let i=0;i<primes.length;i++){
-      if(max>=primes[i]){
-        continue;
+  // 特殊情况
+  if(primes.length===1){
+    return Math.pow(primes[0],n-1)
+  }
+  const dp=[1, primes[0]];
+  // 最左侧指标
+  let i_left = 0;
+  let i_next_prime = 1;
+  const first_prime = primes[0];
+  const last_prime = primes[primes.length-1];
+  for(let i=2;i<n;i++){
+    let last = dp[i-1];
+    dp[i]=primes[i_next_prime]|| Infinity;
+    // 确定左侧的边界值
+    while(dp[i_left]*last_prime<=last){
+      i_left++;
+    }
+    for(let j=i_left;j<i;j++){
+      if(first_prime*dp[j]>last){
+        dp[i]=Math.min(first_prime*dp[j], dp[i]);
+        break;
       }
-      
+      for(let k=1;k<primes.length;k++){
+        const plus = dp[j]*primes[k];
+        if(plus>last){
+          dp[i]=Math.min(plus, dp[i]);
+          break;
+        }
+      }
+    }
+    if(dp[i]===primes[i_next_prime]){
+      i_next_prime++;
     }
   }
-
   return dp[n-1]
 };
-// console.info(lengthOfLIS([10,9,2,5,3,7,101,18]))
+// 313. 超级丑数 堆
+var nthSuperUglyNumber = function(n, primes) {
+  if(n===1){
+    return 1;
+  }
+  // 特殊情况
+  if(primes.length===1){
+    return Math.pow(primes[0],n-1)
+  }
+  const dp=[0,1]
+  const i_cdds=new Array(primes.length).fill(1);
+  for(let m=2;m<=n;m++){
+    let min=dp[m-1];
+    let next=Infinity;
+    for(let i=0;i<primes.length; i++){
+      const p = primes[i];
+      for(let j=0;j<i_cdds.length;j++){
+        const val=dp[i_cdds[j]]*p
+        if(val>min){
+          next=Math.min(next,val);
+        }
+      }
+    }
+    let hasFound = false;
+    for(let k=0;k<i_cdds.length;k++){
+      if(hasFound){
+        break;
+      }
+      for(let i=0;i<primes.length; i++){
+        const p = primes[i];
+        if(next===p*dp[i_cdds[k]]){
+          i_cdds[k]++;
+          hasFound=true;
+          break;
+        }
+      }
+    }
+    dp[m]=next;
+  }
+  return dp[n];
+};
+var nthSuperUglyNumber = function(n, primes) {
+  const dp=[0];
+  const len=primes.length;
+  const nums = new Array(len).fill(1);
+  const points = new Array(len).fill(0)
+  for(let i=1;i<=n;i++){
+    let min = Infinity;
+    for(let j=0;j<len;j++){
+      min = Math.min(min,nums[j]);
+    }
+    dp[i]=min;
+    for(let k=0;k<len;k++){
+      if(min===nums[k]){
+        points[k]++;
+        nums[k]=dp[points[k]]*primes[k];
+      }
+    }
+  }
+  console.info(dp)
+  return dp[n];
+};
+// console.info(nthSuperUglyNumber(12,[2,7,13,19]))
+// console.info(nthSuperUglyNumber(15,[3,5,7,11,19,23,29,41,43,47]))
+
+// 343. 整数拆分
+var integerBreak = function(n) {
+  const dp=[0,1,2];
+  for(let i=3;i<=n;i++){
+    dp[i]=-Infinity;
+    for(let j=1;j<i;j++){
+      dp[i]=Math.max(Math.max(dp[j],j)*Math.max(i-j,dp[i-j]),dp[i])
+    }
+  }
+  return dp[n];
+};
+// 322. 零钱兑换 超时了
+var coinChange = function(coins, amount) {
+  coins.sort((a,b)=>a>b?1:-1)
+  coins=coins.filter(c=>c<=amount);
+  // 各种极端情况
+  if(amount===0) return 0;
+  if(coins.length===0 || coins[0]>amount) return -1;
+  if(coins.length===1) return amount%coins[0]===0?amount/coins[0]:-1;
+  
+  const coin0=coins[0];
+  const dp=[];
+  dp[coin0]=1;
+  for(let i=coin0;i<=amount;i++){
+    if(coins.some(c=>c===i)){
+      dp[i]=1;
+      continue;
+    }
+    dp[i]=-1;
+    for(let j=coin0;j<i;j++){
+      const [head, tailor]=[dp[j],dp[i-j]];
+      if(head!==-1 && tailor!==-1){
+        dp[i]= dp[i]===-1? head+tailor: Math.min(dp[i], head+tailor);
+      }
+    }
+  }
+  return dp[i]
+};
+var coinChange = function(coins, amount) {
+  coins.sort((a,b)=>a>b?1:-1)
+  coins=coins.filter(c=>c<=amount);
+  // 各种极端情况
+  if(amount===0) return 0;
+  if(coins.length===0 || coins[0]>amount) return -1;
+  if(coins.length===1) return amount%coins[0]===0?amount/coins[0]:-1;
+  
+  const coin0=coins[0];
+  const dp=[];
+  dp[coin0]=1;
+  for(let i=coin0;i<=amount;i++){
+    if(coins.some(c=>c===i)){
+      dp[i]=1;
+      continue;
+    }
+    dp[i]=-1;
+    for(let j=coin0;j<i;j++){
+      const [head, tailor]=[dp[j],dp[i-j]];
+      if(head!==-1 && tailor!==-1){
+        dp[i]= dp[i]===-1? head+tailor: Math.min(dp[i], head+tailor);
+      }
+    }
+  }
+  return dp[i]
+};
+// 357. 计算各个位数不同的数字个数
+var countNumbersWithUniqueDigits = function(n) {
+  if(n>10){
+    return 0;
+  }
+  const dp=[0,10]
+  let cur=11;
+  let acc=9;
+  for(let i=2;i<=n;i++){  
+    const next_acc = acc*(cur-i);
+    dp[i]= dp[i-1]+ next_acc;
+    acc=next_acc;
+  }
+  return dp[n];
+};
+// 368. 最大整除子集
+var largestDivisibleSubset = function(nums) {
+  if(nums.length===0){
+    return [];
+  }
+  if(nums.length===1){
+    return nums;
+  }
+  nums.sort((a,b)=>a>b? 1 : -1);
+  // dp=[len, i_last] 长度, 上一个元素的位置
+  let maxLen=-Infinity;
+  let i_max=-1;
+  const dp=[[1,undefined]];
+  for(let i=1;i<nums.length;i++){
+    let len_max=-Infinity;
+    for(let j=i-1; j>=0;j--){
+      const num=nums[j];
+      const [len]= dp[j];
+      if(nums[i]%num===0 && len>len_max){
+        len_max=len;
+        dp[i]=[len_max+1,j];
+      }
+    }
+    if(dp[i][0]>maxLen){
+      maxLen=dp[i][0];
+      i_max=i;
+    }
+  }
+  const ret=[];
+  while(i_max!==undefined){
+    ret.push(nums[i_max]);
+    i_max=dp[i_max]&&dp[i_max][1];
+  }
+  return ret;
+};
+// 375. 猜数字大小 II
+var getMoneyAmount = function(n) {
+  const dp = new Array(n+1).fill(0).map(item=>new Array(n+1).fill(0));
+  for(let i=1;i<=n;i++){
+    // 相同为0
+    for(let j=i;j>0;j--){
+      if(i===j){
+        dp[j][i]=0;  
+      }else{
+        dp[j][i]=j+dp[j+1][i];
+        for(let k=j+1;k<i;k++){
+          dp[j][i]=Math.min(dp[j][i],k+ Math.max(dp[j][k-1],dp[k+1][i]))
+        }
+      }
+    }
+  }
+  // console.info(dp)
+  return dp[1][n]
+};
+// console.info(getMoneyAmount(10))
